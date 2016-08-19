@@ -25,7 +25,3 @@ th, td {
 $(python fiery.py)
 </table>
 EOD
-
-#python fiery.py >> index.html
-#echo "</table>" >> index.html
-
