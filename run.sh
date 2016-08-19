@@ -1,10 +1,8 @@
 #!/bin/bash
+set -euo pipefail
 
-if [ "$1" == "-f" ]; then
-  aws --output json ec2 describe-instances --filters "Name=instance-state-name,Values=running" > instances
-  aws --output json ec2 describe-security-groups > security
-fi
-
+aws --output json ec2 describe-instances --filters "Name=instance-state-name,Values=running" > instances
+aws --output json ec2 describe-security-groups > security
 
 cat <<EOD > index.html
 <style>

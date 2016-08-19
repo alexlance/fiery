@@ -1,6 +1,6 @@
 import json
 
-def colour(text,colour):
+def label(text,colour):
   colours = {}
   colours["red"]    = "#ff0000"
   colours["green"]  = "#067A16"
@@ -14,10 +14,10 @@ known_ips                       = {}
 known_ips["59.100.26.17/32"]    = "Melb"
 known_ips["59.100.13.101/32"]   = "Melb"
 known_ips["202.161.105.242/32"] = "Sydney"
-known_ips["172.20.0.0/24"]      = colour("Operations","yellow")
-known_ips["172.21.0.0/16"]      = colour("Greenzone","green")
-known_ips["172.22.0.0/16"]      = colour("Redzone","red")
-known_ips["0.0.0.0/0"]          = colour("EVERYONE","blue")
+known_ips["172.20.0.0/24"]      = label("Operations","yellow")
+known_ips["172.21.0.0/16"]      = label("Greenzone","green")
+known_ips["172.22.0.0/16"]      = label("Redzone","red")
+known_ips["0.0.0.0/0"]          = label("EVERYONE","blue")
 known_ips["10.0.0.0/8"]         = "Vpn"
 known_ips["172.0.0.0/8"]        = "Allzones"
 
@@ -48,6 +48,7 @@ groups = {}
 for k in data["SecurityGroups"]:
   sgid = k["GroupId"]
   summary = ""
+  groups[sgid] = ""
   for p in k["IpPermissions"]:
 
     try:
@@ -59,7 +60,6 @@ for k in data["SecurityGroups"]:
         toport = p["IpProtocol"]
       except e:
         print "skipping entry: {} {}".format(e, p)
-        continue
 
     if fromport == -1 and toport == -1 and p["IpProtocol"] == "icmp":
         port = "ping"
@@ -81,16 +81,13 @@ for k in data["SecurityGroups"]:
         ip = known_ips[l["CidrIp"]]
       except KeyError, e:
         try:
-          ip = colour(l["CidrIp"],known_prefix[l["CidrIp"][0:7]])
+          ip = label(l["CidrIp"],known_prefix[l["CidrIp"][0:7]])
         except KeyError, e:
           ip = l["CidrIp"]
 
       summary += "</td><td>{}{} {}</td><td> ".format(protocol, port, ip)
-          
     groups[sgid] = summary
   
-  if sgid not in groups:
-    groups[sgid] = ""
 
 
 with open('instances') as data_file:    
@@ -128,6 +125,6 @@ for k in data["Reservations"]:
 for colour in ["red","green","yellow","white"]:
   for k,instance in inst.items():
     if instance["zone"] == colour:
-      print "<tr><td>{}</td><td>{}</td><td>{}</td></tr>".format(colour(instance["id"],instance["zone"]), instance["name"], instance["sgids"])
+      print "<tr><td>{}</td><td>{}</td><td>{}</td></tr>".format(label(instance["id"],instance["zone"]), instance["name"], instance["sgids"])
 
 
