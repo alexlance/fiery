@@ -1,8 +1,8 @@
 #!/bin/bash
 
 if [ "$1" == "-f" ]; then
-  aws ec2 describe-instances --filters "Name=instance-state-name,Values=running" > instances
-  aws ec2 describe-security-groups > security
+  aws --output json ec2 describe-instances --filters "Name=instance-state-name,Values=running" > instances
+  aws --output json ec2 describe-security-groups > security
 fi
 
 
