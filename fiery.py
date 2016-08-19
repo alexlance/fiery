@@ -1,11 +1,6 @@
-#!/usr/bin/env python
-
 import json
 
-# apt install python-termcolor
-#from termcolor import colored
-
-def colored(text,colour):
+def colour(text,colour):
   colours = {}
   colours["red"]    = "#ff0000"
   colours["green"]  = "#067A16"
@@ -15,34 +10,34 @@ def colored(text,colour):
   return "<span style='color:{}'>{}</span>".format(colours[colour],text)
 
 
-known_ips = {}
+known_ips                       = {}
 known_ips["59.100.26.17/32"]    = "Melb"
 known_ips["59.100.13.101/32"]   = "Melb"
 known_ips["202.161.105.242/32"] = "Sydney"
-known_ips["172.20.0.0/24"]      = colored("Operations","yellow")
-known_ips["172.21.0.0/16"]      = colored("Greenzone","green")
-known_ips["172.22.0.0/16"]      = colored("Redzone","red")
-known_ips["0.0.0.0/0"]          = colored("EVERYONE","blue")
+known_ips["172.20.0.0/24"]      = colour("Operations","yellow")
+known_ips["172.21.0.0/16"]      = colour("Greenzone","green")
+known_ips["172.22.0.0/16"]      = colour("Redzone","red")
+known_ips["0.0.0.0/0"]          = colour("EVERYONE","blue")
 known_ips["10.0.0.0/8"]         = "Vpn"
 known_ips["172.0.0.0/8"]        = "Allzones"
 
-known_protocols = {}
+known_protocols                 = {}
 known_protocols["22"]           = "ssh"
 known_protocols["122"]          = "ssh"
 known_protocols["80"]           = "http"
 known_protocols["443"]          = "https"
 known_protocols["9200"]         = "elastic"
 
-known_vpcs = {}
-known_vpcs["vpc-f8f43d9d"] = "green"
-known_vpcs["vpc-e96cba8c"] = "red"
-known_vpcs["vpc-7eb4851b"] = "yellow"
+known_vpcs                      = {}
+known_vpcs["vpc-f8f43d9d"]      = "green"
+known_vpcs["vpc-e96cba8c"]      = "red"
+known_vpcs["vpc-7eb4851b"]      = "yellow"
 
-known_prefix = {}
-known_prefix["172.20."] = "yellow"
-known_prefix["172.21."] = "green"
-known_prefix["172.22."] = "red"
-known_prefix["172.32."] = "white"
+known_prefix                    = {}
+known_prefix["172.20."]         = "yellow"
+known_prefix["172.21."]         = "green"
+known_prefix["172.22."]         = "red"
+known_prefix["172.32."]         = "white"
 
 
 with open('security') as data_file:    
@@ -86,7 +81,7 @@ for k in data["SecurityGroups"]:
         ip = known_ips[l["CidrIp"]]
       except KeyError, e:
         try:
-          ip = colored(l["CidrIp"],known_prefix[l["CidrIp"][0:7]])
+          ip = colour(l["CidrIp"],known_prefix[l["CidrIp"][0:7]])
         except KeyError, e:
           ip = l["CidrIp"]
 
@@ -133,6 +128,6 @@ for k in data["Reservations"]:
 for colour in ["red","green","yellow","white"]:
   for k,instance in inst.items():
     if instance["zone"] == colour:
-      print "<tr><td>{}</td><td>{}</td><td>{}</td></tr>".format(colored(instance["id"],instance["zone"]), instance["name"], instance["sgids"])
+      print "<tr><td>{}</td><td>{}</td><td>{}</td></tr>".format(colour(instance["id"],instance["zone"]), instance["name"], instance["sgids"])
 
 
