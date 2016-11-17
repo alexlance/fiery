@@ -18,8 +18,11 @@ known_ips["172.20.0.0/24"]      = label("Operations","yellow")
 known_ips["172.21.0.0/16"]      = label("Greenzone","green")
 known_ips["172.22.0.0/16"]      = label("Redzone","red")
 known_ips["0.0.0.0/0"]          = label("EVERYONE","blue")
-known_ips["10.0.0.0/8"]         = "Vpn"
-known_ips["172.0.0.0/8"]        = "Allzones"
+known_ips["10.0.0.0/8"]         = "VpnZone"
+known_ips["172.0.0.0/8"]        = "AllZones"
+known_ips["192.30.252.0/22"]    = "Github"
+known_ips["172.21.51.0/24"]     = label("DashboardA","green")
+known_ips["172.21.52.0/24"]     = label("DashboardB","green")
 
 known_protocols                 = {}
 known_protocols["22"]           = "ssh"
@@ -27,6 +30,8 @@ known_protocols["122"]          = "ssh"
 known_protocols["80"]           = "http"
 known_protocols["443"]          = "https"
 known_protocols["9200"]         = "elastic"
+known_protocols["5672"]         = "rabbitmq"
+known_protocols["5044"]         = "filebeats"
 
 known_vpcs                      = {}
 known_vpcs["vpc-f8f43d9d"]      = "green"
@@ -71,9 +76,13 @@ for k in data["SecurityGroups"]:
     else:
       port = "{}-{}".format(fromport, toport)
 
+    if port in ["-1:-1","1-32000","-1"]:
+      port = "ALL_PORTS"
+
+
     protocol = ""
     ip = ""
-    if p["IpProtocol"] != "tcp" and p["IpProtocol"] != "icmp":
+    if p["IpProtocol"] != "tcp" and p["IpProtocol"] != "icmp" and p["IpProtocol"] != "-1":
       protocol = p["IpProtocol"]+":"
 
     for l in p["IpRanges"]:
@@ -85,7 +94,7 @@ for k in data["SecurityGroups"]:
         except KeyError, e:
           ip = l["CidrIp"]
 
-      summary += "</td><td>{}{} {}</td><td> ".format(protocol, port, ip)
+      summary += "</td><td>{} can access {} {}</td><td> ".format(ip, protocol, port)
     groups[sgid] = summary
   
 
@@ -101,6 +110,8 @@ for k in data["Reservations"]:
     inst[x] = {}
     inst[x]["id"] = x
     inst[x]["sgids"] = ""
+    inst[x]["ip1"] = i["PublicIpAddress"]
+    inst[x]["ip2"] = i["PrivateIpAddress"]
 
     try:
       inst[x]["zone"] = known_vpcs[i["VpcId"]]
@@ -125,6 +136,6 @@ for k in data["Reservations"]:
 for colour in ["red","green","yellow","white"]:
   for k,instance in inst.items():
     if instance["zone"] == colour:
-      print "<tr><td>{}</td><td>{}</td><td>{}</td></tr>".format(label(instance["id"],instance["zone"]), instance["name"], instance["sgids"])
+      print "<tr><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>".format(instance["zone"],label(instance["id"],instance["zone"]), instance["ip1"], instance["ip2"], instance["name"], instance["sgids"])
 
 
